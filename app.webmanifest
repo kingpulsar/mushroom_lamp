@@ -1,0 +1,10 @@
+{
+    "name": "Mushroom lamp",
+    "short_name": "Mushroom",
+    "theme_color": "#211e33",
+    "background_color": "#211e33",
+    "display": "fullscreen",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/"
+  }
