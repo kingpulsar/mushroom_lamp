@@ -25,7 +25,6 @@ namespace Config {
     }
 
     void writeConfigToEeprom() {
-        Serial.println("Writing to eeprom");
         prefs.putBool("power",  PREF_POWER);
         prefs.putString("color", PREF_COLOR);
         prefs.putUChar("brightness", PREF_BRIGHTNESS);
@@ -109,15 +108,12 @@ namespace Config {
             token = strtok(nullptr, "|");
         }
 
-        for (int i = 0; i < index; i++) {
-            Serial.println(outputArray[i]);
-        }
-
         setPower(startsWith(outputArray[1], "on"));
         setColor(outputArray[2]);
         setBrightness(String(outputArray[3]).toInt());
         setEffect(outputArray[4]);
 
+        Serial.print("New config: ");
         debugConfig();
     }
 
