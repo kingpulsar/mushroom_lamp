@@ -1,8 +1,8 @@
 #pragma once
-#include <FastLED.h>
+#include <LiteLED.h>
 
-#define LED_PIN GPIO_NUM_4
-#define COLOR_ORDER GRB
-#define CHIPSET WS2812B
+#define LED_TYPE LED_STRIP_WS2812
+#define LED_PIN GPIO_NUM_10
+#define LED_TYPE_IS_RGBW 0
 #define NUM_LEDS 28
-#define FRAMES_PER_SECOND 30
+#define FRAMES_PER_SECOND 60

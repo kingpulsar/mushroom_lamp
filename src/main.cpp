@@ -20,8 +20,6 @@ void setup()
 
   delay(500);
   WebServerHandler::init();
-
-  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop()
@@ -29,10 +27,4 @@ void loop()
   WiFiHandler::loop();
   WebServerHandler::loop();
   LEDHandler::loop();
-
-  if(Config::getPower()) {
-    digitalWrite(LED_BUILTIN, 1);
-  } else {
-    digitalWrite(LED_BUILTIN, 0);
-  }
 }

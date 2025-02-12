@@ -1,22 +1,22 @@
 #pragma once
 #include <Config.h>
-#include <FastLED.h>
 #include <Defines.h>
 #include <Shaders.h>
 
 namespace LEDHandler
 {
-    CRGB leds[NUM_LEDS];
+    LiteLED ledStrip(LED_TYPE, LED_TYPE_IS_RGBW);
     char* shaderName = strdup("solid");
     char* baseColorHex = strdup("#000000");
     bool power = Config::getPower();
-    CRGB baseColor = CRGB::Black;
+    int baseColor = 0x000000;
     unsigned long lastRender = millis();
     Shaders::ShaderEffectFunc shader = Shaders::getShaderByName(shaderName);
 
     void init()
     {
-        FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+        ledStrip.begin(LED_PIN, NUM_LEDS);
+        ledStrip.brightness(200);
     }
     
     void checkShaderChange() {
@@ -26,18 +26,16 @@ namespace LEDHandler
         }
         if(strcmp(Config::getColor(), baseColorHex) != 0) {
             baseColorHex = strdup(Config::getColor());
-            baseColor = hexToCRGB(baseColorHex);
+            baseColor = hexFromString(String(baseColorHex));
         }
     }
 
     void loop()
     {
-
         if(power != Config::getPower()) {
             power = Config::getPower();
             if (!power) {
-                fill_solid(leds, NUM_LEDS, CRGB::Black);
-                FastLED.show();
+                ledStrip.clear(1);
             }
         }
         
@@ -47,27 +45,29 @@ namespace LEDHandler
         }
 
         checkShaderChange();
-        
-        FastLED.setBrightness(Config::getBrightness());
+
         unsigned long currentTime = millis();
         unsigned long deltaTime = currentTime - lastRender;
 
-        unsigned int ledIndex = 0;
+        int ledIndex = 0;
         Shaders::shader_bundle_t bundle = {
-            .index = &ledIndex,
-            .baseColor = &baseColor,
-            .time = &currentTime,
-            .deltaTime = &deltaTime,
+            .baseColor = baseColor,
+            .time = currentTime,
+            .deltaTime = deltaTime,
         };
 
         for (; ledIndex < NUM_LEDS; ledIndex++) {
-            leds[ledIndex] = shader(bundle);
-            //Serial.printf("%d rgb(%d, %d, %d)\n", ledIndex, leds[ledIndex].r, leds[ledIndex].g, leds[ledIndex].b);
+            uint32_t color = shader(bundle, ledIndex);
+            int correctedColor = colorCorrect(color, CustomCorrection);
+            ledStrip.setPixel(ledIndex, correctedColor, 0);
+            //Serial.printf("%d rgb(%f, %f, %f)\n", ledIndex, hexToOkRGB(correctedColor).r, hexToOkRGB(correctedColor).g, hexToOkRGB(correctedColor).b);
         }
-        FastLED.show();
+
+        ledStrip.brightness(Config::getBrightness());
+        ledStrip.show();
 
         lastRender = millis();
-        FastLED.delay(1000 / FRAMES_PER_SECOND);
+        delay(1000 / FRAMES_PER_SECOND);
     }
 
 }
